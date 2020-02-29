@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'first_name', 'last_name', 'phone_number', 'organization', 'email', 'password',
     ];
 
     /**
@@ -36,4 +36,31 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    /**
+     * Attributes
+     */
+    public function getNameAttribute() {
+        return $this->first_name . " " . $this->last_name;
+    }
+
+    /**
+     * Relationships
+     */
+    public function sites() {
+        return $this->hasMany(Site::class);
+    }
+
+    public function roles() {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function hasRole($role) {
+        if (is_string($role)) {
+            return $this->roles->contains('name', $role);
+        }
+        // else: it's collection
+        return !! $role->intersect($this->roles)->count();
+    }
 }
